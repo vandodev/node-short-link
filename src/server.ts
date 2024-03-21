@@ -36,6 +36,15 @@ app.post("/links", async (request, reply) => {
 
 })
 
+app.get("/links", async () => {
+    const result = await sql/*sql*/  `
+      SELECT *
+      FROM short_links
+      ORDER BY created_at DESC
+    `
+    return result
+  })
+
 app.listen({
     port:3333
 }).then(() =>{
