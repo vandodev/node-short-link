@@ -64,7 +64,26 @@ app.get("/:code", async (request, reply) => {
     const link = result[0]
     await redis.zIncrBy("metrics", 1, String(link.id))
     return reply.redirect(301, link.original_url) 
+})
+
+app.get("/api/metrics", async () => {
+    //https://redis.io/commands/zrange/
+    const result = await redis.zRangeByScoreWithScores("metrics", 0, 50)
+  
+    const metrics = result
+      //Order by DEC score:
+      .sort((a, b) => b.score - a.score)
+      //Remap obj keys from "value" (id), "score" to "shortLinkId", "clicks":
+      .map(item => {
+        return {
+          shortLinkId: Number(item.value),
+          clicks: item.score,
+        }
+      })
+  
+    return metrics
   })
+  
 
 app.listen({
     port:3333
