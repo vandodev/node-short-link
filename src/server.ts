@@ -1,7 +1,7 @@
 import fastify from "fastify"
 import { z } from "zod"
 import { sql } from "./lib/postgres"
-
+import { redis } from "./lib/redis"
 import postgres from "postgres"
 
 const app = fastify()
@@ -62,6 +62,7 @@ app.get("/:code", async (request, reply) => {
     }
 
     const link = result[0]
+    await redis.zIncrBy("metrics", 1, String(link.id))
     return reply.redirect(301, link.original_url) 
   })
 
